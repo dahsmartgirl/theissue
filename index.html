@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Magazine Cover Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Geist Sans"', 'sans-serif'],
+            },
+            colors: {
+              border: "hsl(240 5.9% 90%)",
+              input: "hsl(240 5.9% 90%)",
+              ring: "hsl(240 10% 3.9%)",
+              background: "hsl(0 0% 100%)",
+              foreground: "hsl(240 10% 3.9%)",
+              primary: {
+                DEFAULT: "hsl(240 10% 3.9%)",
+                foreground: "hsl(0 0% 98%)",
+              },
+              secondary: {
+                DEFAULT: "hsl(240 4.8% 95.9%)",
+                foreground: "hsl(240 5.9% 10%)",
+              },
+              destructive: {
+                DEFAULT: "hsl(0 84.2% 60.2%)",
+                foreground: "hsl(0 0% 98%)",
+              },
+              muted: {
+                DEFAULT: "hsl(240 4.8% 95.9%)",
+                foreground: "hsl(240 3.8% 46.1%)",
+              },
+              accent: {
+                DEFAULT: "hsl(240 4.8% 95.9%)",
+                foreground: "hsl(240 5.9% 10%)",
+              },
+              popover: {
+                DEFAULT: "hsl(0 0% 100%)",
+                foreground: "hsl(240 10% 3.9%)",
+              },
+              card: {
+                DEFAULT: "hsl(0 0% 100%)",
+                foreground: "hsl(240 10% 3.9%)",
+              },
+            },
+            borderRadius: {
+              lg: "0.75rem",
+              md: "0.5rem",
+              sm: "0.25rem",
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-foreground font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

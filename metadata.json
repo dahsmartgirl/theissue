@@ -1,0 +1,5 @@
+{
+  "name": "theissue",
+  "description": "An application that allows users to generate realistic magazine covers using pre-made design presets and AI image generation powered by Gemini. Users can choose a style, upload a photo, and fill in custom text to create a unique cover.",
+  "requestFramePermissions": []
+}
