@@ -118,6 +118,8 @@ Artistic Placement: Arrange the text artistically, not just in a list.
 
 you can use any of these 3 depending on the vibe of the image.
 
+NEVER LET THE IMAGE FEEL INCOMPLETE. GENERATE TEXTS TO FILL SPACES IN SERIF STYLE
+
 Final Realistic Details:
 
 Barcode: Add a small, subtle, and realistic barcode element in one of the bottom corners (left or right).

@@ -5,8 +5,9 @@ import CoverForm from './components/CoverForm';
 import ResultViewer from './components/ResultViewer';
 import { generateCover } from './services/geminiService';
 import { Spinner } from './components/ui/Spinner';
+import Hero from './components/Hero';
 
-type AppStep = 'fill_form' | 'generating' | 'show_result' | 'error';
+type AppStep = 'hero' | 'fill_form' | 'generating' | 'show_result' | 'error';
 
 const voguePreset = PRESETS.find(p => p.id === 'vogue');
 if (!voguePreset) {
@@ -15,7 +16,7 @@ if (!voguePreset) {
 
 
 const App: React.FC = () => {
-  const [step, setStep] = useState<AppStep>('fill_form');
+  const [step, setStep] = useState<AppStep>('hero');
   const [selectedPreset] = useState<Preset>(voguePreset);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -70,17 +71,29 @@ const App: React.FC = () => {
     setStep('fill_form');
   }, []);
 
+  const handleGetStarted = useCallback(() => {
+    setStep('fill_form');
+  }, []);
+
   const renderContent = () => {
     switch (step) {
+      case 'hero':
+        return <Hero onGetStarted={handleGetStarted} />;
       case 'fill_form':
         return (
-          <CoverForm
-            preset={selectedPreset}
-            onSubmit={handleFormSubmit}
-            initialData={lastFormData}
-            initialImage={lastImage}
-            initialStylize={lastStylize}
-          />
+          <>
+            <div className="text-center mb-12">
+                <h1 className="text-5xl md:text-6xl font-bold tracking-tighter mb-3">AI Magazine Cover Generator</h1>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Instantly create a stunning, Vogue-style magazine cover with AI.</p>
+            </div>
+            <CoverForm
+              preset={selectedPreset}
+              onSubmit={handleFormSubmit}
+              initialData={lastFormData}
+              initialImage={lastImage}
+              initialStylize={lastStylize}
+            />
+          </>
         );
       case 'generating':
         return (
@@ -120,10 +133,6 @@ const App: React.FC = () => {
     <div className="min-h-screen w-full bg-background antialiased">
         <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-blue-50 to-transparent -z-10" />
         <main className="container mx-auto px-4 py-8 md:py-16">
-            <div className="text-center mb-12">
-                <h1 className="text-5xl md:text-6xl font-bold tracking-tighter mb-3">AI Magazine Cover Generator</h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Instantly create a stunning, Vogue-style magazine cover with AI.</p>
-            </div>
             {renderContent()}
         </main>
     </div>
