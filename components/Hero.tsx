@@ -69,7 +69,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
       
       <footer className="w-full text-center py-6 z-10 shrink-0 mt-auto">
         <p className="text-muted-foreground/80 text-sm">
-          Made by <a href="#" className="text-foreground underline hover:no-underline">Ileri</a>🖤
+          Made by <a href="https://x.com/Dahsmartgirl" target="_blank" rel="noopener noreferrer" className="text-foreground underline hover:no-underline">Ileri</a>🖤
         </p>
       </footer>
     </div>
