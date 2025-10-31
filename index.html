@@ -7,54 +7,116 @@
     <title>AI Magazine Cover Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 240 10% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 240 10% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 3.9%;
+        --primary: 240 10% 3.9%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 240 4.8% 95.9%;
+        --secondary-foreground: 240 5.9% 10%;
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --ring: 240 10% 3.9%;
+        --radius: 0.75rem;
+      }
+
+      .dark {
+        --background: 240 10% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 240 10% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 240 5.9% 10%;
+        --secondary: 240 3.7% 15.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 240 5% 64.9%;
+        --accent: 240 3.7% 15.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --ring: 0 0% 98%;
+      }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              sans: ['"Geist Sans"', 'sans-serif'],
+              sans: ['"Inter"', 'sans-serif'],
+              serif: ['"Instrument Serif"', 'serif'],
             },
             colors: {
-              border: "hsl(240 5.9% 90%)",
-              input: "hsl(240 5.9% 90%)",
-              ring: "hsl(240 10% 3.9%)",
-              background: "hsl(0 0% 100%)",
-              foreground: "hsl(240 10% 3.9%)",
+              border: "hsl(var(--border))",
+              input: "hsl(var(--input))",
+              ring: "hsl(var(--ring))",
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
               primary: {
-                DEFAULT: "hsl(240 10% 3.9%)",
-                foreground: "hsl(0 0% 98%)",
+                DEFAULT: "hsl(var(--primary))",
+                foreground: "hsl(var(--primary-foreground))",
               },
               secondary: {
-                DEFAULT: "hsl(240 4.8% 95.9%)",
-                foreground: "hsl(240 5.9% 10%)",
+                DEFAULT: "hsl(var(--secondary))",
+                foreground: "hsl(var(--secondary-foreground))",
               },
               destructive: {
-                DEFAULT: "hsl(0 84.2% 60.2%)",
-                foreground: "hsl(0 0% 98%)",
+                DEFAULT: "hsl(var(--destructive))",
+                foreground: "hsl(var(--destructive-foreground))",
               },
               muted: {
-                DEFAULT: "hsl(240 4.8% 95.9%)",
-                foreground: "hsl(240 3.8% 46.1%)",
+                DEFAULT: "hsl(var(--muted))",
+                foreground: "hsl(var(--muted-foreground))",
               },
               accent: {
-                DEFAULT: "hsl(240 4.8% 95.9%)",
-                foreground: "hsl(240 5.9% 10%)",
+                DEFAULT: "hsl(var(--accent))",
+                foreground: "hsl(var(--accent-foreground))",
               },
               popover: {
-                DEFAULT: "hsl(0 0% 100%)",
-                foreground: "hsl(240 10% 3.9%)",
+                DEFAULT: "hsl(var(--popover))",
+                foreground: "hsl(var(--popover-foreground))",
               },
               card: {
-                DEFAULT: "hsl(0 0% 100%)",
-                foreground: "hsl(240 10% 3.9%)",
+                DEFAULT: "hsl(var(--card))",
+                foreground: "hsl(var(--card-foreground))",
               },
             },
             borderRadius: {
-              lg: "0.75rem",
-              md: "0.5rem",
-              sm: "0.25rem",
+              lg: "calc(var(--radius))",
+              md: "calc(var(--radius) - 0.25rem)",
+              sm: "calc(var(--radius) - 0.5rem)",
+            },
+            animation: {
+              marquee: 'marquee 40s linear infinite',
+              'marquee-reverse': 'marquee-reverse 40s linear infinite',
+            },
+            keyframes: {
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-100%)' },
+              },
+              'marquee-reverse': {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(0%)' },
+              },
             },
           },
         },

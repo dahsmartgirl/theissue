@@ -131,8 +131,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background antialiased">
-        <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-blue-50 to-transparent -z-10" />
-        <main className="container mx-auto px-4 py-8 md:py-16">
+        {step !== 'hero' && <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-secondary/50 to-transparent -z-10" />}
+        <main className={step === 'hero' ? '' : "container mx-auto px-4 py-8 md:py-16"}>
             {renderContent()}
         </main>
     </div>

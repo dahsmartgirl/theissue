@@ -31,10 +31,17 @@ const CoverForm: React.FC<CoverFormProps> = ({ preset, onSubmit, initialData, in
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageUpload = useCallback((base64Image: string) => {
+    setImage(base64Image);
+    if (error) {
+        setError('');
+    }
+  }, [error]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!image) {
-      setError('Please upload an image.');
+      setError('Please upload an image to continue.');
       return;
     }
     setError('');
@@ -45,45 +52,39 @@ const CoverForm: React.FC<CoverFormProps> = ({ preset, onSubmit, initialData, in
     <div className="max-w-4xl mx-auto">
       <Card>
         <CardContent className="p-8">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-foreground">1. Fill in the Text</h3>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold tracking-tight">Your Photo</h3>
+              <ImageUpload onImageUpload={handleImageUpload} initialPreview={image} />
+              {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold tracking-tight">Cover Details</h3>
               {preset.fields.map((field) => (
                 <div key={field.id} className="space-y-2">
-                  <Label htmlFor={field.id} className="font-semibold">{field.label}</Label>
+                  <Label htmlFor={field.id}>{field.label}</Label>
                   <Input
                     id={field.id}
                     name={field.id}
-                    placeholder={field.placeholder}
-                    value={formData[field.id]}
+                    value={formData[field.id] || ''}
                     onChange={handleInputChange}
-                    required
+                    placeholder={field.placeholder}
                   />
                 </div>
               ))}
+               <div className="flex items-center space-x-2 pt-4">
+                <Switch id="stylize-mode" checked={stylize} onCheckedChange={setStylize} />
+                <Label htmlFor="stylize-mode" className="cursor-pointer">
+                  <span className="font-semibold">Enable AI Stylizing</span>
+                  <p className="text-xs text-muted-foreground">Replaces background and enhances lighting for a pro look.</p>
+                </Label>
+              </div>
             </div>
-            <div className="space-y-8">
-                <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-foreground">2. Upload Your Photo</h3>
-                    <ImageUpload onImageUpload={setImage} initialPreview={image} />
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-foreground">3. AI Stylization</h3>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <Label htmlFor="stylize" className="flex flex-col space-y-1">
-                      <span className="font-semibold">AI Enhance Background</span>
-                      <span className="text-sm text-muted-foreground">Let AI beautify the background to fit the vibe.</span>
-                    </Label>
-                    <Switch id="stylize" checked={stylize} onCheckedChange={setStylize} />
-                  </div>
-                </div>
-            </div>
-
-            <div className="md:col-span-2 pt-4">
-                {error && <p className="text-destructive text-sm mb-4 text-center">{error}</p>}
-                <Button type="submit" size="lg" className="w-full text-base font-semibold">
-                    Generate Cover
+            
+            <div className="md:col-span-2 text-center mt-4">
+                <Button type="submit" size="lg" className="w-full md:w-auto">
+                    Generate My Cover
                 </Button>
             </div>
           </form>
