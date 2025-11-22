@@ -1,50 +1,104 @@
-import { Preset } from './types';
 
-export const PRESETS: Preset[] = [
+import { DesignTemplate } from './types';
+
+export const TEMPLATES: DesignTemplate[] = [
+  // --- MAGAZINES ---
   {
     id: 'vogue',
+    category: 'magazine',
     name: 'Vogue',
-    preview: 'https://picsum.photos/seed/vogue/400/500',
-    // The new, detailed prompt is now dynamically generated in the geminiService.
-    // This string is kept for context and potential future use.
-    prompt: 'A master prompt for generating a Vogue-style cover. The full logic is handled by the geminiService.',
-    fields: [
-      { id: 'masthead', label: 'Masthead', placeholder: 'VOGUE' },
-      { id: 'headline', label: 'Headline', placeholder: 'The Future of Fashion' },
-      { id: 'tagline', label: 'Tagline', placeholder: 'A New Era of Style' },
+    description: 'High fashion editorial style',
+    previewImage: 'https://picsum.photos/seed/vogue/400/500',
+    systemPromptId: 'magazine_vogue',
+    aspectRatio: '3/4',
+    inputs: [
+      { id: 'masthead', label: 'Masthead', type: 'text', placeholder: 'VOGUE', defaultValue: 'VOGUE' },
+      { id: 'headline', label: 'Headline', type: 'text', placeholder: 'The Future of Fashion' },
+      { id: 'tagline', label: 'Tagline', type: 'text', placeholder: 'A New Era of Style' },
     ],
   },
   {
     id: 'forbes',
+    category: 'magazine',
     name: 'Forbes',
-    preview: 'https://picsum.photos/seed/forbes/400/500',
-    prompt: 'Create a business magazine cover in the style of Forbes. The subject should look powerful and successful. Use a strong, bold san-serif font for headlines. The color palette should be professional, often incorporating deep blues, reds, or blacks. The composition must be impactful and convey authority.',
-    fields: [
-      { id: 'masthead', label: 'Masthead', placeholder: 'Forbes' },
-      { id: 'headline', label: 'Headline', placeholder: 'The Billionaire Mindset' },
-      { id: 'tagline', label: 'Tagline', placeholder: 'Secrets to Success' },
+    description: 'Business & Success',
+    previewImage: 'https://picsum.photos/seed/forbes/400/500',
+    systemPromptId: 'magazine_forbes',
+    aspectRatio: '3/4',
+    inputs: [
+      { id: 'masthead', label: 'Masthead', type: 'text', placeholder: 'Forbes', defaultValue: 'Forbes' },
+      { id: 'headline', label: 'Headline', type: 'text', placeholder: 'The Billionaire Mindset' },
+      { id: 'tagline', label: 'Tagline', type: 'text', placeholder: 'Secrets to Success' },
     ],
   },
   {
     id: 'billboard',
+    category: 'magazine',
     name: 'Billboard',
-    preview: 'https://picsum.photos/seed/billboard/400/500',
-    prompt: 'Generate a vibrant music magazine cover similar to Billboard. The mood should be energetic and contemporary. Use dynamic, modern typography. The color scheme should be bright and eye-catching. The photo should capture the artist\'s personality and the essence of their music.',
-    fields: [
-      { id: 'masthead', label: 'Masthead', placeholder: 'Billboard' },
-      { id: 'headline', label: 'Headline', placeholder: 'The Sound of Summer' },
-      { id: 'author', label: 'Artist Name', placeholder: 'Artist Name Here' },
+    description: 'Music Industry & Charts',
+    previewImage: 'https://picsum.photos/seed/billboard/400/500',
+    systemPromptId: 'magazine_billboard',
+    aspectRatio: '3/4',
+    inputs: [
+      { id: 'masthead', label: 'Masthead', type: 'text', placeholder: 'Billboard', defaultValue: 'Billboard' },
+      { id: 'headline', label: 'Headline', type: 'text', placeholder: 'Top 100' },
+      { id: 'author', label: 'Artist Name', type: 'text', placeholder: 'Artist Name' },
     ],
   },
   {
     id: 'natgeo',
+    category: 'magazine',
     name: 'National Geographic',
-    preview: 'https://picsum.photos/seed/natgeo/400/500',
-    prompt: 'Produce a magazine cover in the iconic style of National Geographic. The photograph must be breathtaking and tell a story about nature, science, or culture. The iconic yellow border is essential. Typography should be clean and unobtrusive, letting the image speak for itself.',
-    fields: [
-      { id: 'masthead', label: 'Masthead', placeholder: 'NATIONAL GEOGRAPHIC' },
-      { id: 'headline', label: 'Headline', placeholder: 'The Unseen World' },
-      { id: 'tagline', label: 'Tagline', placeholder: 'A Journey into the Wild' },
+    description: 'Nature & Science',
+    previewImage: 'https://picsum.photos/seed/natgeo/400/500',
+    systemPromptId: 'magazine_natgeo',
+    aspectRatio: '3/4',
+    inputs: [
+      { id: 'masthead', label: 'Masthead', type: 'text', placeholder: 'NATIONAL GEOGRAPHIC', defaultValue: 'NATIONAL GEOGRAPHIC' },
+      { id: 'headline', label: 'Headline', type: 'text', placeholder: 'The Unseen World' },
+      { id: 'tagline', label: 'Tagline', type: 'text', placeholder: 'Into the Wild' },
     ],
   },
+  // --- SOCIAL MEDIA ---
+  {
+    id: 'linkedin-milestone',
+    category: 'social',
+    name: 'LinkedIn Milestone',
+    description: 'Professional achievement post',
+    previewImage: 'https://picsum.photos/seed/linkedin/400/500',
+    systemPromptId: 'social_corporate',
+    aspectRatio: '4/5',
+    inputs: [
+      { id: 'milestone_metric', label: 'Metric (e.g. Followers)', type: 'text', placeholder: 'Followers' },
+      { id: 'milestone_number', label: 'Number (e.g. 10,000)', type: 'text', placeholder: '10,000' },
+      { id: 'highlight_color', label: 'Brand Color', type: 'color', defaultValue: '#0077B5' },
+      { 
+        id: 'mood', 
+        label: 'Vibe', 
+        type: 'select', 
+        options: ['Professional', 'Excited', 'Minimalist', 'Bold'],
+        defaultValue: 'Professional'
+      }
+    ]
+  },
+  {
+    id: 'youtube-thumbnail',
+    category: 'social',
+    name: 'YouTube Thumbnail',
+    description: 'High CTR video cover',
+    previewImage: 'https://picsum.photos/seed/yt/640/360',
+    systemPromptId: 'social_youtube',
+    aspectRatio: '16/9',
+    inputs: [
+      { id: 'main_text', label: 'Main Hook', type: 'text', placeholder: 'I BUILT AN AI APP' },
+      { id: 'sub_text', label: 'Subtext', type: 'text', placeholder: '(It actually works)' },
+      { 
+        id: 'expression', 
+        label: 'Facial Expression', 
+        type: 'select', 
+        options: ['Shocked', 'Happy', 'Serious', 'Focused'],
+        defaultValue: 'Shocked'
+      }
+    ]
+  }
 ];

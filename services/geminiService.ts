@@ -1,8 +1,9 @@
+
 import { GoogleGenAI, Modality } from "@google/genai";
-import { Preset } from '../types';
+import { DesignTemplate } from '../types';
 
 interface GenerateCoverParams {
-  preset: Preset;
+  template: DesignTemplate;
   formData: Record<string, string>;
   image: string; // base64 string
   stylize: boolean;
@@ -24,8 +25,22 @@ function fileToGenerativePart(base64: string, mimeType: string) {
   };
 }
 
+/**
+ * MAIN ENTRY POINT
+ * Routes the request to the correct prompt generator based on the template category.
+ */
+export async function generateCover(params: GenerateCoverParams): Promise<string> {
+  if (params.template.category === 'social') {
+    return generateSocialPost(params);
+  }
+  return generateMagazineCover(params);
+}
 
-export async function generateCover({ preset, formData, image, stylize }: GenerateCoverParams): Promise<string> {
+
+/**
+ * LOGIC A: MAGAZINE COVERS (Legacy Refactored)
+ */
+async function generateMagazineCover({ template, formData, image, stylize }: GenerateCoverParams): Promise<string> {
   const model = 'gemini-2.5-flash-image';
 
   const date = new Date();
@@ -34,10 +49,13 @@ export async function generateCover({ preset, formData, image, stylize }: Genera
   const issueDate = `${month} ${year}`;
   const issueNumber = `ISSUE Nº ${Math.floor(Math.random() * 20) + 1}`;
 
+  // Map form data to a string list for the prompt
   const textFields = Object.entries(formData)
     .filter(([, value]) => value?.trim())
-    .map(([key, value]) => `- ${preset.fields.find(f => f.id === key)?.label || key}: "${value}"`)
+    .map(([key, value]) => `- ${template.inputs.find(f => f.id === key)?.label || key}: "${value}"`)
     .join('\n');
+
+  const mastheadValue = formData['masthead'] || template.inputs.find(i => i.id === 'masthead')?.defaultValue || 'MAGAZINE';
 
   let contentGenerationInstructions = '';
   if (textFields) {
@@ -50,85 +68,121 @@ Then, generate 2-3 smaller, secondary placeholder lines to support it based on t
     contentGenerationInstructions = `
 IF [USER_CUSTOM_TEXT] is NOT provided: You must generate all cover lines. Create one (1) primary headline and 2-4 secondary lines.
 Valid Headlines: "FREE SPIRIT", "POWER IN STILLNESS", "FASHION NOW", "THE NEW ERA", "BOLD & FEARLESS", "CUTTING-EDGE STYLE".
-Valid Secondary Lines: "Make it Pop and Sizzle", "The Future of Fashion", "Unshakable, Undeniable", "In An Era of Noise", "The Best of the New Season".
     `;
   }
   
   const backgroundInstruction = stylize 
-    ? "Analyze the existing background. If it is busy or distracting, replace it with a clean, minimalist studio background. Valid Backgrounds: A solid color, a subtle gradient, or an abstract, atmospheric, out-of-focus texture. The new background color must be art-directed to complement the subject's outfit and the new color grade."
-    : "DO NOT CHANGE BACKGROUND UNLESS AI STYLING IS SELECTED. Since AI Styling is OFF, do NOT change, replace, or significantly alter the original background of the user's photo. Keep it as close to the original as possible while applying lighting and color grade enhancements.";
+    ? "Analyze the existing background. If it is busy or distracting, replace it with a clean, minimalist studio background. Valid Backgrounds: A solid color, a subtle gradient, or an abstract, atmospheric, out-of-focus texture."
+    : "DO NOT CHANGE BACKGROUND UNLESS AI STYLING IS SELECTED. Keep it as close to the original as possible.";
   
   const prompt = `
-CRITICAL MISSION: You are an expert Art Director for a world-class fashion magazine. Your task is to take a user-uploaded image and transform it into a stunning, high-fashion magazine cover, emulating the sophisticated and artistic aesthetic of publications like Vogue.
+CRITICAL MISSION: You are an expert Art Director for a world-class fashion magazine. Your task is to take a user-uploaded image and transform it into a stunning, high-fashion magazine cover.
 
-This is a multi-step process. Follow every step precisely.
+TEMPLATE STYLE: ${template.name} (${template.description})
+ASPECT RATIO: ${template.aspectRatio} (Vertical Editorial)
 
 STEP 1: ANALYZE & ENHANCE THE UPLOADED IMAGE
-
-You must first elevate the user's base image to a professional editorial standard. Do not change the subject, their pose, or their core outfit. You are enhancing, not replacing.
-
-Subject Enhancement:
-
-Lighting: Re-light the image with dramatic, high-end studio lighting. The lighting must be intentional. Choose one:
-- High-Contrast: Create deep, rich shadows and bright, sharp highlights to sculpt the face and body.
-- Soft & Luminous: Apply soft, diffused light to create a radiant, ethereal glow on the skin.
-- Clean & Graphic: Use bright, even, high-key lighting for a bold, modern, and graphic look.
-
-Skin & Texture: Apply professional-grade retouching. Skin should be smooth and glowing but retain natural texture. Eyes should be sharpened and brightened.
-
-Clothing Texture: Enhance the material qualities of the subject's clothing. Make fabrics look more luxurious: make silk/satin have more sheen, fur/textures look deeper and richer, and pleats/folds more defined.
-
-Color Grading:
-Apply a sophisticated, cinematic color grade. Do not leave the colors as-is.
-Options: Create a rich monochromatic palette, a vibrant and saturated look, or a high-contrast palette with a single bold accent color. The final color grade must look intentional and expensive.
-
-Background Treatment:
-The subject must be the absolute focus.
-${backgroundInstruction}
+You must first elevate the user's base image to a professional editorial standard.
+- Re-light the image with dramatic, high-end studio lighting.
+- Enhance skin texture and clothing details.
+- Color Grade: Apply a sophisticated, cinematic color grade appropriate for ${template.name}.
+- ${backgroundInstruction}
 
 STEP 2: ARTISTIC TYPOGRAPHY & COMPOSITION
-
-This is the most critical step. You will now add the magazine cover typography.
-
 Magazine Title (The Masthead):
-
-Font: Select an iconic font style. Your primary options are:
-- Style 1 (Vogue): A bold, high-contrast, elegant serif font (like a Didone or Bodoni typeface).
-- Style 2 (AURA!): A clean, bold, modern, and impactful sans-serif font.
-
-Content: Use the title "${formData.masthead || 'VOGUE'}".
-
-Placement: Place the title at the TOP of the image, usually centered.
-
-CRITICAL LAYERING: The title must be intelligently layered for a professional 3D effect. Analyze the subject's silhouette. The title must appear BEHIND the subject's head, hair, or shoulder if they cross the top third of the frame. This is essential.
+- Content: "${mastheadValue}"
+- Font: Iconic, bold, high-contrast.
+- Placement: TOP of the image, centered.
+- CRITICAL LAYERING: The title must appear BEHIND the subject's head if they overlap.
 
 Cover Lines (The Text):
-
-Intelligent Layout: You must analyze the "negative space" of the enhanced image. Find the open areas where text can be placed without covering the subject's face or key focal points.
-
-Font: Use a clean, modern, and elegant font family (e.g., Helvetica Neue, Montserrat, Futura, or a clean light-weight serif like Garamond). You must use a mix of font weights (e.g., BOLD, REGULAR, LIGHT) and sizes to create a visual hierarchy.
-
-Content Generation:
+- Intelligent Layout: Analyze negative space.
+- Font: Mix of weights (BOLD, REGULAR) and sizes.
+- Content Generation:
 ${contentGenerationInstructions}
 
-Artistic Placement: Arrange the text artistically, not just in a list.
-1. Balance the composition.
-2. Cluster text in one area sometimes
-3. Stack text for a graphic effect.
-
-you can use any of these 3 depending on the vibe of the image.
-
-NEVER LET THE IMAGE FEEL INCOMPLETE. GENERATE TEXTS TO FILL SPACES IN SERIF STYLE
-
 Final Realistic Details:
+- Add a barcode in the corner.
+- Add issue date: "${issueDate}" or "${issueNumber}".
 
-Barcode: Add a small, subtle, and realistic barcode element in one of the bottom corners (left or right).
-
-Issue Date: Add a very small, light-weight text element (e.g., "${issueDate}" or "${issueNumber}") discreetly at the very top just below the masthead in mono or san-serif style.
-
-FINAL CHECK: The output must be a single, cohesive image. The user's subject must be instantly recognizable but look like they were professionally shot and styled for the cover of Vogue. The typography must be perfectly integrated, balanced, and artistically composed.
+FINAL CHECK: The output must be a single, cohesive image.
 `;
 
+  return callGemini(model, prompt, image);
+}
+
+/**
+ * LOGIC B: SOCIAL MEDIA POSTS (New Architecture)
+ */
+async function generateSocialPost({ template, formData, image, stylize }: GenerateCoverParams): Promise<string> {
+  const model = 'gemini-2.5-flash-image';
+
+  // Generic Field Mapping
+  // We iterate over all inputs and create a context string for the AI
+  const contextFields = Object.entries(formData)
+    .map(([key, value]) => `${template.inputs.find(i => i.id === key)?.label || key}: "${value}"`)
+    .join('\n');
+
+  const prompt = `
+SYSTEM INSTRUCTION: HIGH-FIDELITY GRAPHIC GENERATOR
+CRITICAL MISSION: You are a World-Class Visual Designer and 3D Composition Engine. Your goal is to take user inputs and transform them into a viral, cinematic, high-fidelity social media asset. The output must look like a premium studio render, not a flat template.
+
+TEMPLATE CONTEXT:
+
+Type: ${template.name}
+
+Intent: ${template.description}
+
+Aspect Ratio: ${template.aspectRatio}
+
+USER INPUTS: ${contextFields}
+
+EXECUTION PROTOCOL (STRICT VISUAL RULES)
+PHASE 1: CINEMATIC ATMOSPHERE & BACKGROUND
+
+Depth & Lighting: Do not create a flat background. Generate a deep, volumetric environment. Use a rich, dark gradient palette (e.g., deep espresso to burnt orange, or midnight blue to electric cyan) that suggests a physical studio space.
+
+Texture: Apply subtle grain or noise to prevent a "plastic" AI look.
+
+Abstract Elements: In the deep background, render large, out-of-focus 3D typography or abstract geometric shapes (like platform logos) to create a sense of scale. Apply strong Bokeh (Depth of Field) to these elements so they do not compete with the foreground.
+
+PHASE 2: ADVANCED SUBJECT INTEGRATION
+
+Cutout & Placement: Extract the subject from the user's photo with pixel-perfect precision. Center them as the hero of the composition.
+
+Relighting (Crucial): You must artificially "relight" the subject to match the background.
+
+Rim Light: Apply a strong, warm glow (or color-matched light) to the edges of the subject’s hair and shoulders to separate them from the background.
+
+Color Grading: Adjust the subject's skin tones to have a warm, high-contrast, "golden hour" or studio-flash aesthetic.
+
+PHASE 3: 3D TYPOGRAPHY & HIERARCHY
+
+Hero Metric (The Big Number): Treat the main headline (e.g., "67K+") as a 3D Object, not just text. Give it extrusion, a slight bevel, and a metallic or glossy white finish. Add a subtle outer glow to make it pop against the dark shirt/background.
+
+The "Container" Strategy: Do not let secondary text float aimlessly. Place the sub-headline (e.g., "Community") inside a High-Gloss UI Element—specifically a pill-shaped button with a gradient fill and drop shadow.
+
+Body Text: Render long text in a crisp, clean, white Sans-Serif font at the bottom. Use wide kerning (letter spacing) for names to create a cinematic "movie credit" feel.
+
+PHASE 4: THE "PRO" DETAILS (THE SECRET SAUCE)
+
+Glassmorphism: Generate 2-3 "floating" UI cards (like social media notification bubbles or comment sections) behind the subject. Render them with a Frosted Glass effect (blur background, white border, semi-transparent). Tilt them slightly in 3D space to imply motion.
+
+Tech Accents: Overlay thin, white HUD (Heads Up Display) lines, brackets, or small icon lists (Likes, Followers, Comments) in the top corners.
+
+Stamps/Badges: If appropriate, add a metallic "seal of approval" or circular stamp graphic (e.g., "Done & Dusted") with a subtle grunge texture to anchor the composition.
+
+FINAL OUTPUT: A single, hyper-realistic PNG image that balances the user's text hierarchy with a rich, 3D-rendered environment.
+`;
+
+  return callGemini(model, prompt, image);
+}
+
+
+/**
+ * HELPER: Call Gemini API
+ */
+async function callGemini(model: string, prompt: string, image: string): Promise<string> {
   const imagePart = fileToGenerativePart(image, image.split(';')[0].split(':')[1]);
 
   try {
@@ -155,7 +209,7 @@ FINAL CHECK: The output must be a single, cohesive image. The user's subject mus
 
   } catch (error) {
     console.error('Gemini API call failed:', error);
-    throw new Error('The AI model failed to generate an image. This could be due to a policy violation or an internal error.');
+    throw new Error('The AI model failed to generate the design. This could be due to a policy violation or an internal error.');
   }
 }
 

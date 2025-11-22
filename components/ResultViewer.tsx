@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Label } from './ui/Label';
 import { editImage } from '../services/geminiService';
 import { Spinner } from './ui/Spinner';
+import { CanvasTopBar } from './CanvasTopBar';
 
 interface ResultViewerProps {
   image: string;
@@ -20,7 +22,7 @@ const ResultViewer: React.FC<ResultViewerProps> = ({ image, onStartOver, onEdit 
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = currentImage;
-    link.download = 'magazine-cover.png';
+    link.download = 'generated-design.png';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -59,7 +61,7 @@ const ResultViewer: React.FC<ResultViewerProps> = ({ image, onStartOver, onEdit 
                 </button>
                 <div className="text-xs font-mono text-muted-foreground px-2 py-0.5 rounded-md bg-green-500/10 text-green-600">Generated</div>
            </div>
-           <h1 className="text-xl font-semibold tracking-tight text-foreground">Your Cover</h1>
+           <h1 className="text-xl font-semibold tracking-tight text-foreground">Your Design</h1>
         </div>
 
         {/* Scrollable Content */}
@@ -67,7 +69,7 @@ const ResultViewer: React.FC<ResultViewerProps> = ({ image, onStartOver, onEdit 
            {/* Section: Download */}
            <div className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Your unique magazine cover has been generated. You can download it immediately or use AI to make further refinements.
+                Your unique design has been generated. You can download it immediately or use AI to make further refinements.
               </p>
               <Button onClick={handleDownload} size="lg" className="w-full font-medium shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -121,13 +123,15 @@ const ResultViewer: React.FC<ResultViewerProps> = ({ image, onStartOver, onEdit 
                 size="sm" 
                 className="w-full text-muted-foreground hover:text-foreground"
             >
-                Start New Issue
+                Start New Design
             </Button>
         </div>
       </div>
 
       {/* Right Panel: Canvas Area */}
       <div className="flex-1 relative h-[500px] lg:h-full bg-secondary/5 overflow-hidden flex flex-col items-center justify-center p-4 lg:p-10">
+         <CanvasTopBar showDownload={true} onDownload={handleDownload} />
+
          {/* Background Grid */}
          <div className="absolute inset-0 pointer-events-none" style={{ 
              backgroundImage: 'radial-gradient(circle at 1px 1px, var(--tw-colors-border) 1px, transparent 0)', 
@@ -136,19 +140,20 @@ const ResultViewer: React.FC<ResultViewerProps> = ({ image, onStartOver, onEdit 
          }}></div>
 
          {/* Canvas Wrapper */}
-         <div className="relative z-10 w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[50vh] aspect-[3/4] transition-all duration-500 ease-out group">
-            <div className="w-full h-full bg-card rounded-sm shadow-2xl border border-border/40 overflow-hidden relative ring-1 ring-black/5">
+         <div className="relative z-10 w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[50vh] h-auto transition-all duration-500 ease-out group">
+             {/* We rely on the image natural aspect ratio here or the container constraints */}
+            <div className="w-full h-auto bg-card rounded-sm shadow-2xl border border-border/40 overflow-hidden relative ring-1 ring-black/5">
                 <img 
                     src={currentImage} 
                     alt="Generated Cover" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain max-h-[70vh]"
                 />
                 
                 {/* Loading Overlay */}
                 {isEditing && (
                   <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
                     <Spinner className="w-8 h-8 text-primary mb-3" />
-                    <p className="text-sm font-medium text-foreground animate-pulse">Refining your cover...</p>
+                    <p className="text-sm font-medium text-foreground animate-pulse">Refining your design...</p>
                   </div>
                 )}
             </div>

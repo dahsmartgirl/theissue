@@ -1,23 +1,21 @@
+
 import React, { useState, useCallback } from 'react';
-import { Preset } from './types';
-import { PRESETS } from './constants';
+import { DesignTemplate } from './types';
+import { TEMPLATES } from './constants';
 import CoverForm from './components/CoverForm';
 import ResultViewer from './components/ResultViewer';
 import { generateCover } from './services/geminiService';
-import { Spinner } from './components/ui/Spinner';
+import { GeneratingState } from './components/GeneratingState';
+import { ErrorState } from './components/ErrorState';
 import Hero from './components/Hero';
 
 type AppStep = 'hero' | 'fill_form' | 'generating' | 'show_result' | 'error';
 
-const voguePreset = PRESETS.find(p => p.id === 'vogue');
-if (!voguePreset) {
-    throw new Error("Vogue preset not found. Please ensure it exists in constants.ts");
-}
-
+const initialTemplate = TEMPLATES[0]; // Defaults to Vogue
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>('hero');
-  const [selectedPreset] = useState<Preset>(voguePreset);
+  const [selectedTemplate, setSelectedTemplate] = useState<DesignTemplate>(initialTemplate);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -38,7 +36,7 @@ const App: React.FC = () => {
 
     try {
       const result = await generateCover({
-        preset: selectedPreset,
+        template: selectedTemplate,
         formData,
         image,
         stylize,
@@ -68,7 +66,15 @@ const App: React.FC = () => {
   }, []);
 
   const handleTryAgain = useCallback(() => {
-    setStep('fill_form');
+    if (lastFormData && lastImage !== null) {
+        handleFormSubmit(lastFormData, lastImage, lastStylize);
+    } else {
+        setStep('fill_form');
+    }
+  }, [lastFormData, lastImage, lastStylize]);
+
+  const handleBackToEditor = useCallback(() => {
+      setStep('fill_form');
   }, []);
 
   const handleGetStarted = useCallback(() => {
@@ -82,7 +88,8 @@ const App: React.FC = () => {
       case 'fill_form':
         return (
             <CoverForm
-              preset={selectedPreset}
+              template={selectedTemplate}
+              onTemplateChange={setSelectedTemplate}
               onSubmit={handleFormSubmit}
               initialData={lastFormData}
               initialImage={lastImage}
@@ -91,20 +98,7 @@ const App: React.FC = () => {
             />
         );
       case 'generating':
-        return (
-          <div className="flex flex-col items-center justify-center h-full min-h-[50vh] animate-in fade-in zoom-in duration-500">
-            <div className="bg-card p-12 rounded-2xl shadow-2xl border border-border/50 flex flex-col items-center text-center max-w-md">
-              <div className="relative">
-                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
-                 <Spinner className="relative z-10 w-12 h-12 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mt-8 tracking-tight">Crafting Your Cover</h2>
-              <p className="text-muted-foreground mt-3 leading-relaxed">
-                Our AI Art Director is analyzing your photo, adjusting the lighting, and applying the {selectedPreset.name} style.
-              </p>
-            </div>
-          </div>
-        );
+        return <GeneratingState originalImage={lastImage} />;
       case 'show_result':
         if (generatedImage) {
           return (
@@ -114,23 +108,12 @@ const App: React.FC = () => {
         return null;
       case 'error':
         return (
-            <div className="flex flex-col items-center justify-center h-[60vh]">
-                <div className="bg-card p-8 rounded-xl border border-destructive/20 shadow-2xl max-w-md w-full text-center">
-                    <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h2 className="text-xl font-semibold text-foreground mb-2">Generation Failed</h2>
-                    <p className="text-sm text-muted-foreground mb-8">{errorMessage}</p>
-                    <button
-                        onClick={handleTryAgain}
-                        className="w-full inline-flex items-center justify-center rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 transition-all"
-                    >
-                        Try Again
-                    </button>
-                </div>
-            </div>
+            <ErrorState 
+                errorMessage={errorMessage} 
+                originalImage={lastImage} 
+                onTryAgain={handleTryAgain} 
+                onBack={handleBackToEditor}
+            />
         );
       default:
         return <div>Something went wrong.</div>;
@@ -146,8 +129,7 @@ const App: React.FC = () => {
         )}
         <main className={
             step === 'hero' ? 'flex-1 relative' : 
-            (step === 'fill_form' || step === 'show_result') ? 'flex-1 h-screen flex flex-col overflow-hidden relative' : 
-            "flex-1 flex flex-col relative"
+            "flex-1 h-screen flex flex-col overflow-hidden relative"
         }>
             {renderContent()}
         </main>

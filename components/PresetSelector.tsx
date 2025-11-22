@@ -1,10 +1,11 @@
+
 import React from 'react';
-import { Preset } from '../types';
+import { DesignTemplate } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 
 interface PresetSelectorProps {
-  presets: Preset[];
-  onSelect: (preset: Preset) => void;
+  presets: DesignTemplate[];
+  onSelect: (preset: DesignTemplate) => void;
 }
 
 const PresetSelector: React.FC<PresetSelectorProps> = ({ presets, onSelect }) => {
@@ -20,7 +21,7 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ presets, onSelect }) =>
           >
             <CardHeader>
               <img 
-                src={preset.preview} 
+                src={preset.previewImage} 
                 alt={preset.name} 
                 className="w-full h-64 object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
               />

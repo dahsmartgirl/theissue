@@ -107,6 +107,7 @@
             animation: {
               marquee: 'marquee 40s linear infinite',
               'marquee-reverse': 'marquee-reverse 40s linear infinite',
+              scan: 'scan 3s linear infinite',
             },
             keyframes: {
               marquee: {
@@ -116,6 +117,12 @@
               'marquee-reverse': {
                 '0%': { transform: 'translateX(-100%)' },
                 '100%': { transform: 'translateX(0%)' },
+              },
+              scan: {
+                '0%': { top: '-10%', opacity: '0' },
+                '10%': { opacity: '1' },
+                '90%': { opacity: '1' },
+                '100%': { top: '110%', opacity: '0' },
               },
             },
           },
